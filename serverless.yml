@@ -17,6 +17,8 @@ custom:
   notesTableName: ${self:custom.stage}-notes
   beginningsTableName: ${self:custom.stage}-beginnings
   mirrorsTableName: ${self:custom.stage}-mirrors
+  darknessTableName: ${self:custom.stage}-darkness
+  fillerTableName: ${self:custom.stage}-filller
 
 provider:
   name: aws
@@ -30,6 +32,8 @@ provider:
     notesTableName: ${self:custom.notesTableName}
     beginningsTableName: ${self:custom.beginningsTableName}
     mirrorsTableName: ${self:custom.mirrorsTableName}
+    darknessTableName: ${self:custom.darknessTableName}
+    fillerTableName: ${self:custom.fillerTableName}
     stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
   # 'iamRoleStatements' defines the permission policy for the Lambda function.
@@ -50,6 +54,7 @@ provider:
         - "Fn::GetAtt": [ NotesTable, Arn ]
         - "Fn::GetAtt": [ BeginningsTable, Arn ]
         - "Fn::GetAtt": [ MirrorsTable, Arn ]
+        - "Fn::GetAtt": [ DarknessTable, Arn ]
 
 functions:
   # Defines an HTTP API endpoint that calls the main function in create.js
@@ -59,7 +64,24 @@ functions:
   #     domain api call
   # - authorizer: authenticate using the AWS IAM role
   # Create functions for each table below this line:
-  
+  create-filler:
+    handler: create-filler.main
+    events:
+      - http:
+          path: fillers
+          method: post
+          cors: true
+          authorizer: aws_iam
+
+  create-darkness:
+    handler: create-darkness.main
+    events:
+      - http:
+          path: darknesss
+          method: post
+          cors: true
+          authorizer: aws_iam
+
   create-mirror:
     handler: create-mirror.main
     events:
@@ -88,6 +110,24 @@ functions:
           authorizer: aws_iam
 
   # Get functions for each table below this line:
+  get-filler:
+    handler: get-filler.main
+    events:
+      - http:
+          path: fillers/{id}
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  get-darkness:
+    handler: get-darkness.main
+    events:
+      - http:
+          path: darknesss/{id}
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   get-mirror:
     handler: get-mirror.main
     events:
@@ -119,6 +159,24 @@ functions:
           authorizer: aws_iam
   
   # List functions for each table below this line:
+  list-filler:
+    handler: list-filler.main
+    events:
+      - http:
+          path: fillers
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  list-darkness:
+    handler: list-darkness.main
+    events:
+      - http:
+          path: darknesss
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   list-mirror:
     handler: list-mirror.main
     events:
@@ -150,6 +208,24 @@ functions:
           authorizer: aws_iam
 
   # Update functions for each table below this line:
+  update-filler:
+    handler: update-filler.main
+    events:
+      - http:
+          path: fillers/{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  update-darkness:
+    handler: update-darkness.main
+    events:
+      - http:
+          path: darknesss/{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+
   update-mirror:
     handler: update-mirror.main
     events:
@@ -181,6 +257,24 @@ functions:
           authorizer: aws_iam
 
   # Delete functions for each table below this line:
+  delete-filler:
+    handler: delete-filler.main
+    events:
+      - http:
+          path: fillers/{id}
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  delete-darkness:
+    handler: delete-darkness.main
+    events:
+      - http:
+          path: darknesss/{id}
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
   delete-mirror:
     handler: delete-mirror.main
     events:
@@ -231,6 +325,8 @@ resources:
   - ${file(resources/dynamodb-table.yml)}
   - ${file(resources/dynamodbTable-beginning.yml)}
   - ${file(resources/dynamodbTable-mirror.yml)}
+  - ${file(resources/dynamodbTable-darkness.yml)}
+  - ${file(resources/dynamodbTable-filler.yml)}
   # S3
   - ${file(resources/s3-bucket.yml)}
   # Cognito

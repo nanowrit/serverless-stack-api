@@ -1,0 +1,17 @@
+Resources:
+  FillerTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.fillerTableName}
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: fillerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: fillerId
+          KeyType: RANGE
+      # Set the capacity to auto-scale
+      BillingMode: PAY_PER_REQUEST

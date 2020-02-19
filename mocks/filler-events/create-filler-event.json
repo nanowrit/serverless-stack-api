@@ -1,0 +1,8 @@
+{
+    "body": "{\"goal\":\"hello goal\",\"conflictField\":\"hello conflictField\",\"disaster\":\"hello disaster\",\"dilemma\":\"hello dilemma\",\"decision\":\"hello decision\",\"actionField\":\"hello actionField\",\"attachment\":\"hello.jpg\"}",
+    "requestContext": {
+      "identity": {
+        "cognitoIdentityId": "USER-SUB-1234"
+      }
+    }
+  }
