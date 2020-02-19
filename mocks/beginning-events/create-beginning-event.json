@@ -1,0 +1,8 @@
+{
+    "body": "{\"hook\":\"hello new hook\",\"backstory\":\"hello new backstory\",\"incitingIncident\":\"hello new incitingIncident\",\"tRigger\":\"hello tRigger\",\"debate\":\"hello debate\",\"decision\":\"hello decision\",\"threshold\":\"hello threshold\",\"attachment\":\"hello.jpg\"}",
+    "requestContext": {
+      "identity": {
+        "cognitoIdentityId": "USER-SUB-1234"
+      }
+    }
+  }

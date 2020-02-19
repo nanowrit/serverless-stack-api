@@ -14,7 +14,9 @@ custom:
   # commands. Or fallsback to what we have set in the provider section.
   stage: ${opt:stage, self:provider.stage}
   # Set the table name here so we can use it while testing locally
-  tableName: ${self:custom.stage}-notes
+  notesTableName: ${self:custom.stage}-notes
+  beginningsTableName: ${self:custom.stage}-beginnings
+  mirrorsTableName: ${self:custom.stage}-mirrors
 
 provider:
   name: aws
@@ -25,7 +27,9 @@ provider:
   # These environment variables are made available to our functions
   # under process.env.
   environment:
-    tableName: ${self:custom.tableName}
+    notesTableName: ${self:custom.notesTableName}
+    beginningsTableName: ${self:custom.beginningsTableName}
+    mirrorsTableName: ${self:custom.mirrorsTableName}
     stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
   # 'iamRoleStatements' defines the permission policy for the Lambda function.
@@ -44,6 +48,8 @@ provider:
       # the specific table for the stage
       Resource:
         - "Fn::GetAtt": [ NotesTable, Arn ]
+        - "Fn::GetAtt": [ BeginningsTable, Arn ]
+        - "Fn::GetAtt": [ MirrorsTable, Arn ]
 
 functions:
   # Defines an HTTP API endpoint that calls the main function in create.js
@@ -52,12 +58,51 @@ functions:
   # - cors: enabled CORS (Cross-Origin Resource Sharing) for browser cross
   #     domain api call
   # - authorizer: authenticate using the AWS IAM role
+  # Create functions for each table below this line:
+  
+  create-mirror:
+    handler: create-mirror.main
+    events:
+      - http:
+          path: mirrors
+          method: post
+          cors: true
+          authorizer: aws_iam
+
+  create-beginning:
+    handler: create-beginning.main
+    events:
+      - http:
+          path: beginnings
+          method: post
+          cors: true
+          authorizer: aws_iam
+
   create:
     handler: create.main
     events:
       - http:
           path: notes
           method: post
+          cors: true
+          authorizer: aws_iam
+
+  # Get functions for each table below this line:
+  get-mirror:
+    handler: get-mirror.main
+    events:
+      - http:
+          path: mirrors/{id}
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  get-beginning:
+    handler: get-beginning.main
+    events:
+      - http:
+          path: beginnings/{id}
+          method: get
           cors: true
           authorizer: aws_iam
   
@@ -69,6 +114,25 @@ functions:
     events:
       - http:
           path: notes/{id}
+          method: get
+          cors: true
+          authorizer: aws_iam
+  
+  # List functions for each table below this line:
+  list-mirror:
+    handler: list-mirror.main
+    events:
+      - http:
+          path: mirrors
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  list-beginning:
+    handler: list-beginning.main
+    events:
+      - http:
+          path: beginnings
           method: get
           cors: true
           authorizer: aws_iam
@@ -85,6 +149,25 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  # Update functions for each table below this line:
+  update-mirror:
+    handler: update-mirror.main
+    events:
+      - http:
+          path: mirrors/{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  update-beginning:
+    handler: update-beginning.main
+    events:
+      - http:
+          path: beginnings/{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+
   update:
     # Defines an HTTP API endpoint that calls the main function in update.js
     # - path: url path is /notes/{id}
@@ -94,6 +177,25 @@ functions:
       - http:
           path: notes/{id}
           method: put
+          cors: true
+          authorizer: aws_iam
+
+  # Delete functions for each table below this line:
+  delete-mirror:
+    handler: delete-mirror.main
+    events:
+      - http:
+          path: mirrors/{id}
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  delete-beginning:
+    handler: delete-beginning.main
+    events:
+      - http:
+          path: beginnings/{id}
+          method: delete
           cors: true
           authorizer: aws_iam
 
@@ -127,6 +229,8 @@ resources:
   - ${file(resources/api-gateway-errors.yml)}
   # DynamoDB
   - ${file(resources/dynamodb-table.yml)}
+  - ${file(resources/dynamodbTable-beginning.yml)}
+  - ${file(resources/dynamodbTable-mirror.yml)}
   # S3
   - ${file(resources/s3-bucket.yml)}
   # Cognito
