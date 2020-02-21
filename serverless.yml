@@ -1,4 +1,4 @@
-service: notes-app-2-api
+service: scenebuilder-app-api
 
 # Create an optimized package for our functions
 package:
@@ -14,11 +14,12 @@ custom:
   # commands. Or fallsback to what we have set in the provider section.
   stage: ${opt:stage, self:provider.stage}
   # Set the table name here so we can use it while testing locally
-  notesTableName: ${self:custom.stage}-notes
   beginningsTableName: ${self:custom.stage}-beginnings
   mirrorsTableName: ${self:custom.stage}-mirrors
   darknessTableName: ${self:custom.stage}-darkness
   fillerTableName: ${self:custom.stage}-filller
+  recommitmentTableName: ${self:custom.stage}-recommitment
+  climaxTableName: ${self:custom.stage}-climax
 
 provider:
   name: aws
@@ -29,11 +30,12 @@ provider:
   # These environment variables are made available to our functions
   # under process.env.
   environment:
-    notesTableName: ${self:custom.notesTableName}
     beginningsTableName: ${self:custom.beginningsTableName}
     mirrorsTableName: ${self:custom.mirrorsTableName}
     darknessTableName: ${self:custom.darknessTableName}
     fillerTableName: ${self:custom.fillerTableName}
+    recommitmentTableName: ${self:custom.recommitmentTableName}
+    climaxTableName: ${self:custom.climaxTableName}
     stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
   # 'iamRoleStatements' defines the permission policy for the Lambda function.
@@ -51,10 +53,12 @@ provider:
       # Restrict our IAM role permissions to
       # the specific table for the stage
       Resource:
-        - "Fn::GetAtt": [ NotesTable, Arn ]
         - "Fn::GetAtt": [ BeginningsTable, Arn ]
         - "Fn::GetAtt": [ MirrorsTable, Arn ]
         - "Fn::GetAtt": [ DarknessTable, Arn ]
+        - "Fn::GetAtt": [ FillerTable, Arn ]
+        - "Fn::GetAtt": [ RecommitmentTable, Arn ]
+        - "Fn::GetAtt": [ ClimaxTable, Arn ]
 
 functions:
   # Defines an HTTP API endpoint that calls the main function in create.js
@@ -64,6 +68,24 @@ functions:
   #     domain api call
   # - authorizer: authenticate using the AWS IAM role
   # Create functions for each table below this line:
+  create-climax:
+    handler: create-climax.main
+    events:
+      - http:
+          path: climaxs
+          method: post
+          cors: true
+          authorizer: aws_iam
+
+  create-recommitment:
+    handler: create-recommitment.main
+    events:
+      - http:
+          path: recommitments
+          method: post
+          cors: true
+          authorizer: aws_iam
+
   create-filler:
     handler: create-filler.main
     events:
@@ -100,16 +122,25 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  create:
-    handler: create.main
+  # Get functions for each table below this line:
+  get-climax:
+    handler: get-climax.main
     events:
       - http:
-          path: notes
-          method: post
+          path: climaxs/{id}
+          method: get
           cors: true
           authorizer: aws_iam
 
-  # Get functions for each table below this line:
+  get-recommitment:
+    handler: get-recommitment.main
+    events:
+      - http:
+          path: recommitments/{id}
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   get-filler:
     handler: get-filler.main
     events:
@@ -146,19 +177,25 @@ functions:
           cors: true
           authorizer: aws_iam
   
-  get:
-    # Defines an HTTP API endpoint that calls the main function in get.js
-    # - path: url path is /notes/{id}
-    # - method: GET request
-    handler: get.main
+  # List functions for each table below this line:
+  list-climax:
+    handler: list-climax.main
     events:
       - http:
-          path: notes/{id}
+          path: climaxs
           method: get
           cors: true
           authorizer: aws_iam
-  
-  # List functions for each table below this line:
+
+  list-recommitment:
+    handler: list-recommitment.main
+    events:
+      - http:
+          path: recommitments
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   list-filler:
     handler: list-filler.main
     events:
@@ -194,20 +231,26 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-  
-  list:
-    # Defines an HTTP API endpoint that calls the main function in list.js
-    # - path: url path is /notes
-    # - method: GET request
-    handler: list.main
+
+  # Update functions for each table below this line:
+  update-climax:
+    handler: update-climax.main
     events:
       - http:
-          path: notes
-          method: get
+          path: climaxs/{id}
+          method: put
           cors: true
           authorizer: aws_iam
 
-  # Update functions for each table below this line:
+  update-recommitment:
+    handler: update-recommitment.main
+    events:
+      - http:
+          path: recommitments/{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+
   update-filler:
     handler: update-filler.main
     events:
@@ -244,19 +287,25 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  update:
-    # Defines an HTTP API endpoint that calls the main function in update.js
-    # - path: url path is /notes/{id}
-    # - method: PUT request
-    handler: update.main
+  # Delete functions for each table below this line:
+  delete-climax:
+    handler: delete-climax.main
     events:
       - http:
-          path: notes/{id}
-          method: put
+          path: climaxs/{id}
+          method: delete
           cors: true
           authorizer: aws_iam
 
-  # Delete functions for each table below this line:
+  delete-recommitment:
+    handler: delete-recommitment.main
+    events:
+      - http:
+          path: recommitments/{id}
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
   delete-filler:
     handler: delete-filler.main
     events:
@@ -293,18 +342,6 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  delete:
-    # Defines an HTTP API endpoint that calls the main function in delete.js
-    # - path: url path is /notes/{id}
-    # - method: DELETE request
-    handler: delete.main
-    events:
-      - http:
-          path: notes/{id}
-          method: delete
-          cors: true
-          authorizer: aws_iam
-
   billing:
     # Defines an HTTP API endpoint that calls the main function in billing.js
     # - path: url path is /billing
@@ -322,11 +359,12 @@ resources:
   # API Gateway Errors
   - ${file(resources/api-gateway-errors.yml)}
   # DynamoDB
-  - ${file(resources/dynamodb-table.yml)}
   - ${file(resources/dynamodbTable-beginning.yml)}
   - ${file(resources/dynamodbTable-mirror.yml)}
   - ${file(resources/dynamodbTable-darkness.yml)}
   - ${file(resources/dynamodbTable-filler.yml)}
+  - ${file(resources/dynamodbTable-recommitment.yml)}
+  - ${file(resources/dynamodbTable-climax.yml)}
   # S3
   - ${file(resources/s3-bucket.yml)}
   # Cognito

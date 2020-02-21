@@ -1,0 +1,8 @@
+{
+    "body": "{\"struggle\":\"hello struggle\",\"doubt\":\"hello doubt\",\"unexpected\":\"hello unexpected\",\"climax\":\"hello climax\",\"poeticJustice\":\"hello poeticJustice\",\"poeticReward\":\"hello poeticReward\",\"wrapUp\":\"hello wrapUp\",\"attachment\":\"hello.jpg\"}",
+    "requestContext": {
+      "identity": {
+        "cognitoIdentityId": "USER-SUB-1234"
+      }
+    }
+  }

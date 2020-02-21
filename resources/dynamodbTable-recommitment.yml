@@ -1,0 +1,17 @@
+Resources:
+  RecommitmentTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.recommitmentTableName}
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: recommitmentId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: recommitmentId
+          KeyType: RANGE
+      # Set the capacity to auto-scale
+      BillingMode: PAY_PER_REQUEST

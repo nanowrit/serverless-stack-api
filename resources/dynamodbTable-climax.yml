@@ -1,0 +1,17 @@
+Resources:
+  ClimaxTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.climaxTableName}
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: climaxId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: climaxId
+          KeyType: RANGE
+      # Set the capacity to auto-scale
+      BillingMode: PAY_PER_REQUEST
